@@ -88,16 +88,13 @@ viewer.addEventListener('wheel', e => {
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
 
-  // Координаты относительно изображения
-  const imgX = (mouseX - posX) / scale;
-  const imgY = (mouseY - posY) / scale;
-
+  const prevScale = scale;
   const delta = e.deltaY < 0 ? 1.1 : 0.9;
   scale *= delta;
 
-  // Новое смещение, чтобы точка под курсором осталась на месте
-  posX = mouseX - imgX * scale;
-  posY = mouseY - imgY * scale;
+  // Смещаем так, чтобы точка под курсором осталась на месте
+  posX = mouseX - (mouseX - posX) * (scale / prevScale);
+  posY = mouseY - (mouseY - posY) * (scale / prevScale);
 
   updateTransform();
 });
