@@ -86,10 +86,10 @@
     // Зум колесом относительно позиции курсора
     viewer.addEventListener('wheel', e => {
       e.preventDefault();
-      const rect = img.getBoundingClientRect();
-      // Положение курсора относительно левого верхнего угла изображения
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
+      const rect = viewer.getBoundingClientRect();
+      // Положение курсора относительно центра viewer
+      const mouseX = e.clientX - rect.left - rect.width / 2;
+      const mouseY = e.clientY - rect.top - rect.height / 2;
       // Положение курсора в координатах изображения с учетом текущего масштаба
       const imgX = (mouseX - posX) / scale;
       const imgY = (mouseY - posY) / scale;
