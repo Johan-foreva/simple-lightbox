@@ -48,13 +48,15 @@
     }
 
     /* Ключевое: якорим трансформации к левому верхнему углу */
-    #image {
-      transform-origin: 0 0;
-      user-select: none;
-      -webkit-user-drag: none;
-      max-width: none; /* важно: не даём браузеру масштабировать автоматически */
-      will-change: transform;
-    }
+#image {
+  transform-origin: 0 0; /* ключевой момент */
+  user-select: none;
+  -webkit-user-drag: none;
+  max-width: none;
+  max-height: none;
+  will-change: transform;
+}
+
 
     #hint {
       position: fixed;
@@ -76,7 +78,7 @@
   <div id="toolbar">
     <button id="fit">Fit</button>
     <button id="real">100%</button>
-    <small>Scroll to zoom, drag to move v1.1.1</small>
+    <small>Scroll to zoom, drag to move v1.1.2</small>
   </div>
 
   <div id="viewer">
@@ -193,12 +195,15 @@
     }
 
     // Инициализация после загрузки изображения
-    img.onload = () => {
-      // стартуем с Fit
-      fitToWindow();
-      // лёгкий анти-рывок при первом показе
-      requestAnimationFrame(() => updateTransform());
-    };
+img.onload = () => {
+  // Начальный Fit-to-window
+  const vw = viewer.clientWidth;
+  const vh = viewer.clientHeight;
+  scale = Math.min(vw / img.naturalWidth, vh / img.naturalHeight);
+  posX = (vw - img.naturalWidth * scale) / 2;
+  posY = (vh - img.naturalHeight * scale) / 2;
+  updateTransform();
+};
 
     // На ресайз экрана — подогнать, если мы в «fit» (грубо считаем, что если картинка вмещается ровно, повторяем fit)
     window.addEventListener('resize', () => {
