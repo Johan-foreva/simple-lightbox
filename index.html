@@ -12,7 +12,142 @@ body, html { margin:0; padding:0; width:100%; height:100%; background:#111; over
 #viewer { width:100%; height:100%; display:flex; align-items:center; justify-content:center; cursor:grab; overflow:hidden; }
 #image { user-select:none; -webkit-user-drag:none; max-width:none; max-height:none; will-change:transform; }
 #hint { position:fixed; bottom:14px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.55); padding:6px 10px; border-radius:999px; font-size:12px; opacity:0.9; pointer-events:none; transition:opacity 0.4s ease; }
-#hint.hidden { opacity:0; }
+#hint.hidden { opacity:0; }<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Image Viewer</title>
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+      background: #111;
+      overflow: hidden;
+      font-family: sans-serif;
+      color: white;
+    }
+    #toolbar {
+      position: fixed;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      border-radius: 8px;
+      padding: 6px 10px;
+      z-index: 1000;
+    }
+    #toolbar button {
+      margin: 0 5px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #444;
+      color: white;
+      cursor: pointer;
+    }
+    #toolbar button:hover {
+      background: #666;
+    }
+    #viewer {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      cursor: grab;
+    }
+    #viewer img {
+      user-select: none;
+      -webkit-user-drag: none;
+      transform-origin: center center;
+      transition: transform 0.05s linear;
+    }
+  </style>
+</head>
+<body>
+  <div id="toolbar">
+    <button id="fit">Fit</button>
+    <button id="real">100%</button>
+    <small>Scroll to zoom, drag to move</small>
+  </div>
+  <div id="viewer">
+    <img id="image" src="" alt="Image" draggable="false" ondragstart="return false;">
+
+  </div>
+
+  <script>
+    const img = document.getElementById('image');
+    const viewer = document.getElementById('viewer');
+    const fitBtn = document.getElementById('fit');
+    const realBtn = document.getElementById('real');
+
+    // Получаем ?url=...
+    const params = new URLSearchParams(window.location.search);
+    const url = params.get('url');
+    if (url) img.src = url;
+
+    let scale = 1;
+    let posX = 0, posY = 0;
+    let isDragging = false, lastX = 0, lastY = 0;
+
+    function updateTransform() {
+      img.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+    }
+
+    // Зум колесом
+    viewer.addEventListener('wheel', e => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 1.1 : 0.9;
+      scale *= delta;
+      updateTransform();
+    });
+
+    // Перетаскивание
+    viewer.addEventListener('mousedown', e => {
+      isDragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      viewer.style.cursor = 'grabbing';
+    });
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+      viewer.style.cursor = 'grab';
+    });
+    window.addEventListener('mousemove', e => {
+      if (!isDragging) return;
+      posX += e.clientX - lastX;
+      posY += e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      updateTransform();
+    });
+
+    // По размеру окна
+    fitBtn.addEventListener('click', () => {
+      const vw = viewer.clientWidth;
+      const vh = viewer.clientHeight;
+      const ratio = Math.min(vw / img.naturalWidth, vh / img.naturalHeight);
+      scale = ratio;
+      posX = 0;
+      posY = 0;
+      updateTransform();
+    });
+
+    // 100%
+    realBtn.addEventListener('click', () => {
+      scale = 1;
+      posX = 0;
+      posY = 0;
+      updateTransform();
+    });
+
+    // Авто-fit при загрузке
+    img.onload = () => fitBtn.click();
+  </script>
+</body>
+</html>
+
 </style>
 </head>
 <body>
