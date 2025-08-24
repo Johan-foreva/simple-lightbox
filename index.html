@@ -133,11 +133,17 @@
       updateTransform();
     });
 
-    // 100%
+    // 100% с масштабированием относительно центра окна
     realBtn.addEventListener('click', () => {
-      scale = 1;
-      posX = 0;
-      posY = 0;
+      const rect = viewer.getBoundingClientRect();
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const imgX = (centerX - posX) / scale;
+      const imgY = (centerY - posY) / scale;
+      const newScale = 1;
+      posX = centerX - imgX * newScale;
+      posY = centerY - imgY * newScale;
+      scale = newScale;
       updateTransform();
     });
 
