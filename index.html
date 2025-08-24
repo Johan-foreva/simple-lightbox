@@ -1,20 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Image Viewer</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-body, html { margin:0; padding:0; width:100%; height:100%; background:#111; overflow:hidden; font-family:sans-serif; }
-#toolbar { position:fixed; top:10px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); border-radius:8px; padding:6px 10px; z-index:10; }
-#toolbar button { margin:0 5px; padding:6px 12px; border:none; border-radius:6px; background:#444; color:white; cursor:pointer; }
-#toolbar button:hover{background:#666;}
-#viewer { width:100%; height:100%; display:flex; align-items:center; justify-content:center; cursor:grab; overflow:hidden; }
-#image { user-select:none; -webkit-user-drag:none; max-width:none; max-height:none; will-change:transform; }
-#hint { position:fixed; bottom:14px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.55); padding:6px 10px; border-radius:999px; font-size:12px; opacity:0.9; pointer-events:none; transition:opacity 0.4s ease; }
-#hint.hidden { opacity:0; }<!DOCTYPE html>
-<html lang="ru">
-<head>
   <meta charset="UTF-8">
   <title>Image Viewer</title>
   <style>
@@ -64,7 +50,7 @@ body, html { margin:0; padding:0; width:100%; height:100%; background:#111; over
       transition: transform 0.05s linear;
     }
     small {
-      color:white;
+      color: white;
     }
   </style>
 </head>
@@ -76,7 +62,6 @@ body, html { margin:0; padding:0; width:100%; height:100%; background:#111; over
   </div>
   <div id="viewer">
     <img id="image" src="" alt="Image" draggable="false" ondragstart="return false;">
-
   </div>
 
   <script>
@@ -98,11 +83,23 @@ body, html { margin:0; padding:0; width:100%; height:100%; background:#111; over
       img.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
     }
 
-    // Зум колесом
+    // Зум колесом относительно позиции курсора
     viewer.addEventListener('wheel', e => {
       e.preventDefault();
+      const rect = img.getBoundingClientRect();
+      // Положение курсора относительно левого верхнего угла изображения
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      // Положение курсора в координатах изображения с учетом текущего масштаба
+      const imgX = (mouseX - posX) / scale;
+      const imgY = (mouseY - posY) / scale;
+      // Изменение масштаба
       const delta = e.deltaY < 0 ? 1.1 : 0.9;
-      scale *= delta;
+      const newScale = scale * delta;
+      // Корректировка позиции, чтобы точка под курсором оставалась на месте
+      posX = mouseX - imgX * newScale;
+      posY = mouseY - imgY * newScale;
+      scale = newScale;
       updateTransform();
     });
 
