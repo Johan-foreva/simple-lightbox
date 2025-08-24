@@ -55,7 +55,7 @@
   <div id="toolbar">
     <button id="fit">Fit</button>
     <button id="real">100%</button>
-    <small>Scroll to zoom, drag to move v1.0</small>
+    <small>Scroll to zoom, drag to move v1.0.1</small>
   </div>
   <div id="viewer">
     <img id="image" src="" alt="Image" draggable="false" ondragstart="return false;">
@@ -88,16 +88,21 @@ viewer.addEventListener('wheel', e => {
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
 
-  const prevScale = scale;
+  // переводим координаты мыши в систему изображения
+  const originX = (mouseX - posX) / scale;
+  const originY = (mouseY - posY) / scale;
+
+  // новый масштаб
   const delta = e.deltaY < 0 ? 1.1 : 0.9;
   scale *= delta;
 
-  // Смещаем так, чтобы точка под курсором осталась на месте
-  posX = mouseX - (mouseX - posX) * (scale / prevScale);
-  posY = mouseY - (mouseY - posY) * (scale / prevScale);
+  // пересчитываем смещение так, чтобы та же точка осталась под курсором
+  posX = mouseX - originX * scale;
+  posY = mouseY - originY * scale;
 
   updateTransform();
 });
+
 
 
     // Перетаскивание
